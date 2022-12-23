@@ -7,17 +7,18 @@ import {
   LeaveButton,
   SaveButton,
   Wrapper,
-} from "./styles";
+} from "../AddPopup/styles";
 import useScanDetection from "use-scan-detection";
 
-function AddProduct({ open }) {
-  const [barCode, setBarCode] = useState("No BarCode");
-  const [name, setName] = useState("");
-  const [wholesale, setWholesale] = useState(0);
-  const [price, setPrice] = useState(0);
+export default function EditProduct({ open, item }) {
+  const [name, setName] = useState(item.name);
+  const [barCode, setBarCode] = useState(item.codebar);
+  const [wholesale, setWholesale] = useState(item.wholesale);
+  const [price, setPrice] = useState(item.price);
   useScanDetection({
     onComplete: setBarCode,
   });
+
   return (
     <>
       <Wrapper>
@@ -78,10 +79,7 @@ function AddProduct({ open }) {
               height="30%"
             >
               <Label>BarCode</Label>
-              <Input
-                value={barCode}
-                onChange={(e) => setBarCode(e.target.value)}
-              ></Input>
+              <Input value={barCode} readOnly></Input>
             </Flex>
           </Flex>
           <Flex height="10%" width="100%" jc="flex-end" ai="center" gap="10px">
@@ -93,5 +91,3 @@ function AddProduct({ open }) {
     </>
   );
 }
-
-export default AddProduct;

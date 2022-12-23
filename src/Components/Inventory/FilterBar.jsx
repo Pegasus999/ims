@@ -3,21 +3,46 @@ import { Flex } from "../Shared/Flex";
 import {
   ColumnName,
   DeleteButton,
-  EditButton,
   Filters,
   IconContainer,
   SearchBar,
 } from "./styles";
 import { MdSearch } from "react-icons/md";
-import { RiCloseCircleFill } from "react-icons/ri";
+import { RiCloseCircleFill, RiBarcodeBoxLine } from "react-icons/ri";
+import useScanDetection from "use-scan-detection";
 
-export default function FilterBar({ selected }) {
+export default function FilterBar({ selected, setProductList, products }) {
   const [query, setQuery] = useState("");
-
-  function queryHandler() {
+  const [searchMode, setSearchMode] = useState("text");
+  function queryHandler(query) {
+    setQuery(query);
     if (query) {
+      setProductList(
+        products.filter((product) =>
+          product.name.toLowerCase().includes(query.toLowerCase())
+        )
+      );
+    } else {
+      setProductList(products);
     }
   }
+  function iconHandler() {
+    if (searchMode === "text") {
+      setSearchMode("code");
+    } else {
+      setSearchMode("text");
+    }
+  }
+  function ScanHandler(code) {
+    if (searchMode === "code") {
+      setQuery(code);
+      setProductList(products.filter((product) => product.codebar === code));
+    }
+  }
+
+  useScanDetection({
+    onComplete: (code) => ScanHandler(code),
+  });
 
   return (
     <Filters>
@@ -26,11 +51,16 @@ export default function FilterBar({ selected }) {
           <SearchBar
             placeholder="Search"
             type="text"
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => queryHandler(e.target.value)}
             value={query}
           />
-          <IconContainer align="left" onClick={queryHandler}>
-            <MdSearch />
+          <IconContainer
+            align="left"
+            onClick={() => {
+              iconHandler();
+            }}
+          >
+            {searchMode === "text" ? <RiBarcodeBoxLine /> : <MdSearch />}
           </IconContainer>
           {query && (
             <IconContainer align="right" onClick={() => setQuery("")}>
@@ -38,22 +68,17 @@ export default function FilterBar({ selected }) {
             </IconContainer>
           )}
         </div>
-        <Flex gap="20px">
+        <Flex>
           <DeleteButton disabled={selected.length === 0 ? true : false}>
             DELETE
           </DeleteButton>
-          <EditButton disabled={selected.length === 0 ? true : false}>
-            Edit
-          </EditButton>
         </Flex>
       </Flex>
       <Flex jc="flex-start" gap="40px" style={{ padding: "0 20px" }}>
-        <input type="checkbox" />
-        <div style={{ width: "40px" }}></div>
-        <ColumnName style={{ width: "250px" }}>Name</ColumnName>
+        <div style={{ width: "93px" }}></div>
+        <ColumnName style={{ width: "150px" }}>Name</ColumnName>
         <ColumnName>Price</ColumnName>
         <ColumnName>Wholesale price</ColumnName>
-        <ColumnName>Quantity</ColumnName>
         <ColumnName>BarCode</ColumnName>
       </Flex>
     </Filters>

@@ -16,7 +16,7 @@ export const Header = styled(Flex)`
 `;
 
 export const ProductsContainer = styled.div`
-  max-width: 1440px;
+  max-width: 1000px;
   min-height: calc(100vh - 150px);
   max-height: 586px;
   margin: 0 auto;
@@ -68,18 +68,6 @@ export const DeleteButton = styled.button`
     disabled === true ? "var(--lighter-red)" : "var(--red)"};
 `;
 
-export const EditButton = styled.button`
-  padding: 10px;
-  border-radius: 5px;
-  width: fit-content;
-  cursor: pointer;
-  font-weight: bold;
-  color: white;
-  outline: none;
-  border: 1px solid var(--border-gray);
-  background-color: ${({ disabled }) =>
-    disabled === true ? "var(--lighter-blue)" : "var(--blue)"};
-`;
 //bottom filters - columns
 
 export const ColumnName = styled.p`
@@ -87,12 +75,15 @@ export const ColumnName = styled.p`
   font-size: 14px;
   color: var(--border);
   font-weight: bold;
-  cursor: pointer;
+  cursor: default;
 `;
 
 export const ItemLabel = styled(ColumnName)`
-  cursor: default;
+  cursor: pointer;
   font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 // products -
 export const ItemsList = styled.div`
@@ -118,4 +109,12 @@ export const AddButton = styled.button`
   outline: none;
   border: 1px solid var(--border-gray);
   background-color: var(--green);
+`;
+
+export const Back = styled.div`
+  font-size: 20px;
+
+  border-radius: solid 1px var(--border-grey);
+  font-weight: bold;
+  cursor: pointer;
 `;
