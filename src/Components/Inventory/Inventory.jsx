@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import AddProduct from "../AddPopup/AddProduct";
 import FilterBar from "./FilterBar";
 import {
   AddButton,
@@ -12,6 +13,8 @@ import {
 
 export default function Inventory() {
   const [selected, setSelected] = useState([]);
+  const [popOpen, setPopOpen] = useState(false);
+
   function HandleCheck(e, key) {
     if (e.target.checked) {
       setSelected((prev) => [...prev, key]);
@@ -20,13 +23,15 @@ export default function Inventory() {
       setSelected(newArr);
     }
   }
-
+  function AddHandler(bool) {
+    setPopOpen(bool);
+  }
   return (
-    <>
+    <div style={{ position: "relative" }}>
       <Wrapper>
         <Header>
           <h2>Products</h2>
-          <AddButton>Add Product</AddButton>
+          <AddButton onClick={() => AddHandler(true)}>Add Product</AddButton>
         </Header>
         <ProductsContainer>
           <FilterBar selected={selected} />
@@ -45,6 +50,7 @@ export default function Inventory() {
           </ItemsList>
         </ProductsContainer>
       </Wrapper>
-    </>
+      {popOpen && <AddProduct open={AddHandler} />}
+    </div>
   );
 }
