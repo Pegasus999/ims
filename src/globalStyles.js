@@ -6,7 +6,7 @@ export const GlobalStyles = createGlobalStyle`
     	margin: 0;
       padding: 0;
       scroll-behavior: smooth;
-      font-family: 'Raleway', sans-serif;
+      font-family: 'Roboto', sans-serif;
       ::-webkit-scrollbar {
         width: 8px;
       }
@@ -26,6 +26,7 @@ export const GlobalStyles = createGlobalStyle`
 
     :root {
       --green:#008060;
+      --yellow:#EEEE9B;
       --darker-green: #007b5c;
       --orange: #ffa500;
       --blue: #1560bd;
