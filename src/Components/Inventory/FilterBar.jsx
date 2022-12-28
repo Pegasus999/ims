@@ -69,7 +69,10 @@ export default function FilterBar({ selected, setProductList, products }) {
           )}
         </div>
         <Flex>
-          <DeleteButton disabled={selected.length === 0 ? true : false}>
+          <DeleteButton
+            disabled={selected.length === 0 ? true : false}
+            onClick={() => window.Delete(selected)}
+          >
             DELETE
           </DeleteButton>
         </Flex>

@@ -11,13 +11,32 @@ import {
 import useScanDetection from "use-scan-detection";
 
 function AddProduct({ open }) {
-  const [barCode, setBarCode] = useState("No BarCode");
   const [name, setName] = useState("");
-  const [wholesale, setWholesale] = useState(0);
-  const [price, setPrice] = useState(0);
+  const [wholesale, setWholesale] = useState();
+  const [price, setPrice] = useState();
+  const [focus, setFocus] = useState(false);
+  const [barCode, setBarCode] = useState("No BarCode");
+
   useScanDetection({
-    onComplete: setBarCode,
+    onComplete: (code) => ScanHandler(code),
   });
+
+  function ScanHandler(code) {
+    if (focus) {
+      setBarCode(code);
+    }
+  }
+
+  function save() {
+    const product = {
+      name: name,
+      price: price,
+      wholesale: wholesale,
+      barcode: barCode,
+    };
+
+    window.SaveData(product);
+  }
   return (
     <>
       <Wrapper>
@@ -80,13 +99,18 @@ function AddProduct({ open }) {
               <Label>BarCode</Label>
               <Input
                 value={barCode}
+                onFocus={() => {
+                  setFocus(true);
+                }}
+                onBlur={() => setFocus(false)}
                 onChange={(e) => setBarCode(e.target.value)}
+                readOnly
               ></Input>
             </Flex>
           </Flex>
           <Flex height="10%" width="100%" jc="flex-end" ai="center" gap="10px">
             <LeaveButton onClick={() => open(false)}>Cancel</LeaveButton>
-            <SaveButton>Save</SaveButton>
+            <SaveButton onClick={() => save()}>Save</SaveButton>
           </Flex>
         </Container>
       </Wrapper>

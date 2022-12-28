@@ -12,13 +12,18 @@ import useScanDetection from "use-scan-detection";
 
 export default function EditProduct({ open, item }) {
   const [name, setName] = useState(item.name);
-  const [barCode, setBarCode] = useState(item.codebar);
+  const [barCode, setBarCode] = useState(item.barcode);
   const [wholesale, setWholesale] = useState(item.wholesale);
   const [price, setPrice] = useState(item.price);
+  let product;
   useScanDetection({
     onComplete: setBarCode,
   });
-
+  function Edit() {
+    product = { id: item.id, name, price, wholesale, barcode: barCode };
+    console.log(product);
+    window.SaveEdit(product);
+  }
   return (
     <>
       <Wrapper>
@@ -84,7 +89,7 @@ export default function EditProduct({ open, item }) {
           </Flex>
           <Flex height="10%" width="100%" jc="flex-end" ai="center" gap="10px">
             <LeaveButton onClick={() => open(false)}>Cancel</LeaveButton>
-            <SaveButton>Save</SaveButton>
+            <SaveButton onClick={() => Edit()}>Save</SaveButton>
           </Flex>
         </Container>
       </Wrapper>

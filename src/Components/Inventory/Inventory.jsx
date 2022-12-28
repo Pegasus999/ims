@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
 import AddProduct from "../AddPopup/AddProduct";
 import EditProduct from "../EditPopup/EditProduct";
 import FilterBar from "./FilterBar";
@@ -15,29 +17,14 @@ import {
 } from "./styles";
 
 export default function Inventory() {
-  const [selected, setSelected] = useState([]);
+  const [selected, setSelected] = useState(6);
   const navigate = useNavigate();
   const [popOpen, setPopOpen] = useState(false);
   const [popeditOpen, setPopEditOpen] = useState(false);
   const [item, setItem] = useState();
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: "ma9arouna",
-      price: 200,
-      wholesale: 100,
-      codebar: "5216362673",
-    },
-    { id: 2, name: "roz", price: 100, wholesale: 50, codebar: "2516516236" },
-    {
-      id: 3,
-      name: "cheese",
-      price: 250,
-      wholesale: 150,
-      codebar: "8003510014033",
-    },
-  ]);
-  const [productList, setProductList] = useState([]);
+  const [products, setProducts] = useState(() => window.RequestData());
+  const [productList, setProductList] = useState(products);
+
   function HandleCheck(e, key) {
     if (e.target.checked) {
       setSelected((prev) => [...prev, key]);
@@ -46,11 +33,13 @@ export default function Inventory() {
       setSelected(newArr);
     }
   }
+  console.log(products);
   function AddHandler(bool) {
     setPopOpen(bool);
   }
   function EditHandler(el, bool) {
     setItem(el);
+
     setPopEditOpen(bool);
   }
 
@@ -68,7 +57,7 @@ export default function Inventory() {
             setProductList={setProductList}
           />
           <ItemsList>
-            {productList.map((el, key) => (
+            {productList?.map((el, key) => (
               <Item key={key} style={{ padding: "0 20px" }}>
                 <input type="checkbox" onChange={(e) => HandleCheck(e, key)} />
                 <div style={{ width: "40px" }}></div>
@@ -91,7 +80,7 @@ export default function Inventory() {
                     EditHandler(el, true);
                   }}
                 >
-                  {el.codebar}
+                  {el.barcode}
                 </ItemLabel>
               </Item>
             ))}
