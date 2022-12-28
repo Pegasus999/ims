@@ -17,23 +17,23 @@ import {
 } from "./styles";
 
 export default function Inventory() {
-  const [selected, setSelected] = useState(6);
+  const [selected, setSelected] = useState([]);
   const navigate = useNavigate();
   const [popOpen, setPopOpen] = useState(false);
   const [popeditOpen, setPopEditOpen] = useState(false);
   const [item, setItem] = useState();
-  const [products, setProducts] = useState(() => window.RequestData());
+  const products = window.RequestData();
   const [productList, setProductList] = useState(products);
 
-  function HandleCheck(e, key) {
+  function HandleCheck(e, id) {
     if (e.target.checked) {
-      setSelected((prev) => [...prev, key]);
+      selected ? setSelected((prev) => [...prev, id]) : setSelected(id);
     } else {
-      const newArr = selected.filter((el) => el !== key);
+      const newArr = selected.filter((el) => el !== id);
       setSelected(newArr);
     }
   }
-  console.log(products);
+
   function AddHandler(bool) {
     setPopOpen(bool);
   }
@@ -59,7 +59,10 @@ export default function Inventory() {
           <ItemsList>
             {productList?.map((el, key) => (
               <Item key={key} style={{ padding: "0 20px" }}>
-                <input type="checkbox" onChange={(e) => HandleCheck(e, key)} />
+                <input
+                  type="checkbox"
+                  onChange={(e) => HandleCheck(e, el.id)}
+                />
                 <div style={{ width: "40px" }}></div>
 
                 <ItemLabel
