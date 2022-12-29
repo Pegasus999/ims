@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useScanDetection from "use-scan-detection";
 import { Back, Header } from "../Inventory/styles";
 import { Flex } from "../Shared/Flex";
 import {
@@ -15,13 +17,32 @@ import {
 
 export default function Sell() {
   const navigate = useNavigate();
+  const [list, setList] = useState([]);
+  const products = window.RequestData();
+  const [total, setTotal] = useState(0);
+  function ScanHandler(code) {
+    products.map((el) => {
+      if (el.barcode == code) setList((prev) => [...prev, el]);
+    });
+  }
+
+  useEffect(() => {
+    list.map((el) => {
+      setTotal(total + parseFloat(el["price"]));
+    });
+  }, [list]);
+
+  useScanDetection({
+    onComplete: (code) => ScanHandler(code),
+  });
+
   return (
     <Wrapper>
       <Header>
         <Back onClick={() => navigate("/")}>Home</Back>
       </Header>
       <Container>
-        <TotalDisplay>0</TotalDisplay>
+        <TotalDisplay>{total}</TotalDisplay>
         <ButtonsContainer>
           <Button color="var(--green)">INSERT</Button>
           <Button color="var(--blue)">PRINT</Button>
@@ -53,7 +74,7 @@ export default function Sell() {
             </Flex>
           </ColumnBar>
           <ListContainer>
-            {[...Array(8).keys()].map((el, index) => (
+            {list?.map((el, index) => (
               <Item key={index}>
                 <Flex
                   jcc="center"
@@ -66,7 +87,7 @@ export default function Sell() {
                     textOverflow: "ellipsis",
                   }}
                 >
-                  Name
+                  {el.name}
                 </Flex>
                 <Flex
                   jcc="center"
@@ -75,7 +96,7 @@ export default function Sell() {
                   height="100%"
                   style={{ fontSize: "30px", textOverflow: "ellipsis" }}
                 >
-                  Price
+                  {el.price}
                 </Flex>
               </Item>
             ))}

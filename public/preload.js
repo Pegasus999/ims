@@ -86,11 +86,10 @@ process.once("loaded", () => {
     } else {
       regex = new RegExp(`${regex.source}${ids[0]}`);
     }
-    console.log(regex);
     file.on("data", (chunk) => {
       const rows = chunk.split("\n");
       for (const row of rows) {
-        if (ids.length == 0) file.end;
+        if (ids.length == 0) file.emit("end");
         const id = row.split(",");
         if (regex.test(row) && ids.includes(id[0])) {
           ids.pop(id);
