@@ -12,8 +12,8 @@ import useScanDetection from "use-scan-detection";
 
 function AddProduct({ open }) {
   const [name, setName] = useState("");
-  const [wholesale, setWholesale] = useState();
-  const [price, setPrice] = useState();
+  const [wholesale, setWholesale] = useState(0);
+  const [price, setPrice] = useState(0);
   const [focus, setFocus] = useState(false);
   const [barCode, setBarCode] = useState("No BarCode");
 

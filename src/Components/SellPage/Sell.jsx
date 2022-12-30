@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useScanDetection from "use-scan-detection";
+import { useProducts } from "../Inventory/Inventory";
 import { Back, Header } from "../Inventory/styles";
 import { Flex } from "../Shared/Flex";
 import {
@@ -18,24 +19,34 @@ import {
 export default function Sell() {
   const navigate = useNavigate();
   const [list, setList] = useState([]);
-  const products = window.RequestData();
+  const products = useProducts();
   const [total, setTotal] = useState(0);
+
   function ScanHandler(code) {
     products.map((el) => {
-      if (el.barcode == code) setList((prev) => [...prev, el]);
+      if (el.barcode === code) setList((prev) => [...prev, el]);
     });
   }
 
   useEffect(() => {
-    list.map((el) => {
-      setTotal(total + parseFloat(el["price"]));
-    });
+    let amount = 0;
+    for (let i = 0; i < list.length; i++) amount += parseFloat(list[i].price);
+    setTotal(amount);
   }, [list]);
 
   useScanDetection({
     onComplete: (code) => ScanHandler(code),
   });
 
+  function Undo() {
+    setList((prev) => {
+      const items = [...prev];
+      items.pop();
+
+      return items;
+    });
+  }
+  console.log(list);
   return (
     <Wrapper>
       <Header>
@@ -46,8 +57,12 @@ export default function Sell() {
         <ButtonsContainer>
           <Button color="var(--green)">INSERT</Button>
           <Button color="var(--blue)">PRINT</Button>
-          <Button color="var(--yellow)">UNDO</Button>
-          <Button color="var(--red)">RESET</Button>
+          <Button color="var(--yellow)" onClick={() => Undo()}>
+            UNDO
+          </Button>
+          <Button color="var(--red)" onClick={() => setList([])}>
+            RESET
+          </Button>
         </ButtonsContainer>
         <ItemsContainer>
           <ColumnBar>
@@ -74,7 +89,7 @@ export default function Sell() {
             </Flex>
           </ColumnBar>
           <ListContainer>
-            {list?.map((el, index) => (
+            {list.map((el, index) => (
               <Item key={index}>
                 <Flex
                   jcc="center"

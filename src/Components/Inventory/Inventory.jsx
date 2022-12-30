@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { useLayoutEffect } from "react";
+import React, { createContext, useState } from "react";
+import { useContext } from "react";
+
 import { useNavigate } from "react-router-dom";
 
 import AddProduct from "../AddPopup/AddProduct";
@@ -16,15 +17,17 @@ import {
   Wrapper,
 } from "./styles";
 
+const products = createContext(window.RequestData());
+export const useProducts = () => useContext(products);
+
 export default function Inventory() {
   const [selected, setSelected] = useState([]);
   const navigate = useNavigate();
   const [popOpen, setPopOpen] = useState(false);
   const [popeditOpen, setPopEditOpen] = useState(false);
   const [item, setItem] = useState();
-  const products = window.RequestData();
+  const products = useProducts();
   const [productList, setProductList] = useState(products);
-
   function HandleCheck(e, id) {
     if (e.target.checked) {
       selected ? setSelected((prev) => [...prev, id]) : setSelected(id);

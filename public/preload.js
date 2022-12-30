@@ -75,23 +75,13 @@ process.once("loaded", () => {
     const file = fs.createReadStream("./products.csv", { encoding: "utf8" });
     let buffer = [];
     let regex = new RegExp(`^`);
-    let i = 0;
 
-    if (ids.length > 1) {
-      while (i < ids.length - 1) {
-        regex = new RegExp(`${regex.source}(${ids[i]})|`);
-        i++;
-      }
-      regex = new RegExp(`${regex.source}(${ids[ids.length - 1]})`);
-    } else {
-      regex = new RegExp(`${regex.source}${ids[0]}`);
-    }
     file.on("data", (chunk) => {
       const rows = chunk.split("\n");
       for (const row of rows) {
         if (ids.length == 0) file.emit("end");
         const id = row.split(",");
-        if (regex.test(row) && ids.includes(id[0])) {
+        if (ids.includes(id[0])) {
           ids.pop(id);
           buffer.push("\r");
           buffer.pop("\n");
