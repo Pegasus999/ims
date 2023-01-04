@@ -18,7 +18,6 @@ import {
 } from "./styles";
 
 const products = createContext(window.RequestData());
-export const useProducts = () => useContext(products);
 
 export default function Inventory() {
   const [selected, setSelected] = useState([]);
@@ -26,7 +25,7 @@ export default function Inventory() {
   const [popOpen, setPopOpen] = useState(false);
   const [popeditOpen, setPopEditOpen] = useState(false);
   const [item, setItem] = useState();
-  const products = useProducts();
+  const products = window.RequestData();
   const [productList, setProductList] = useState(products);
   function HandleCheck(e, id) {
     if (e.target.checked) {
@@ -36,7 +35,6 @@ export default function Inventory() {
       setSelected(newArr);
     }
   }
-
   function AddHandler(bool) {
     setPopOpen(bool);
   }

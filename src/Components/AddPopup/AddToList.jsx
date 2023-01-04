@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import useScanDetection from "use-scan-detection";
 import { Flex } from "../Shared/Flex";
 import {
   Container,
@@ -8,14 +9,24 @@ import {
   SaveButton,
   Wrapper,
 } from "./styles";
-import useScanDetection from "use-scan-detection";
 
-function AddProduct({ open }) {
+function AddToList({ open, barCode, add }) {
   const [name, setName] = useState("");
   const [wholesale, setWholesale] = useState(0);
   const [price, setPrice] = useState(0);
   const [focus, setFocus] = useState(false);
-  const [barCode, setBarCode] = useState("No BarCode");
+  const [barcode, setBarCode] = useState();
+  function save() {
+    const product = {
+      name: name,
+      price: price,
+      wholesale: wholesale,
+      barcode: barCode,
+      quantity: 1,
+    };
+    add(product);
+    open(false);
+  }
 
   useScanDetection({
     onComplete: (code) => ScanHandler(code),
@@ -27,15 +38,6 @@ function AddProduct({ open }) {
     }
   }
 
-  function save() {
-    const product = {
-      name: name,
-      price: price,
-      wholesale: wholesale,
-      barcode: barCode,
-    };
-    window.SaveData(product);
-  }
   return (
     <>
       <Wrapper>
@@ -117,4 +119,4 @@ function AddProduct({ open }) {
   );
 }
 
-export default AddProduct;
+export default AddToList;

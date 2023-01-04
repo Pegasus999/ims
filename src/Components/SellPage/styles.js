@@ -67,7 +67,7 @@ export const Button = styled.button`
 export const ListContainer = styled.div`
   width: 100%;
   height: 100%;
-  overflow-y: scroll;
+  overflow-y: auto;
 `;
 
 export const Item = styled.div`
