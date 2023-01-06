@@ -4,6 +4,7 @@ import ReactToPrint from "react-to-print";
 import useScanDetection from "use-scan-detection";
 import AddToList from "../AddPopup/AddToList";
 import InstertPopup from "../InsetPopup/Insert";
+import { Quantity } from "../InsetPopup/styles";
 
 import { Back, Header } from "../Inventory/styles";
 import { Flex } from "../Shared/Flex";
@@ -40,11 +41,35 @@ export default function Sell() {
     setList((prev) => [...prev, object]);
   }
 
+  const modifyQuantity = (bool, index) => {
+    const newItems = [...list];
+    const lastItem = newItems[index];
+    if (bool) lastItem.quantity++;
+    else lastItem.quantity--;
+    setList(newItems);
+  };
+
+  const multiplyQuantity = (key, index) => {
+    const newItems = [...list];
+    const lastItem = newItems[index];
+    lastItem.quantity *= parseInt(key);
+    setList(newItems);
+  };
+
+  const resetQuantity = (index) => {
+    const newItems = [...list];
+    const lastItem = newItems[index];
+    lastItem.quantity = 1;
+    setList(newItems);
+  };
+
+  console.log(list);
+
   function Rest() {
     const difference = list.filter(
       (item1) => !products.some((item2) => item1.name === item2.name)
     );
-    console.log(difference);
+
     difference.map((el) => {
       if (el.name !== "Manual") window.SaveData(el);
     });
@@ -54,24 +79,41 @@ export default function Sell() {
   function ScanHandler(code) {
     setCode(code);
 
-    if (!list.find((item) => item.barcode === code)) {
-      products.map((el) => {
-        if (el.barcode === code) {
-          setList((prev) => [...prev, { ...el, quantity: 1 }]);
-        }
-      });
-    } else {
+    if (list.find((item) => item.barcode === code)) {
       setList((prevList) =>
         prevList.map((obj) => {
           if (obj.barcode === code) {
-            console.log(obj.name);
             return { ...obj, quantity: obj.quantity + 1 };
           }
           return obj;
         })
       );
+    } else {
+      products.map((el) => {
+        if (el.barcode === code) {
+          setList((prev) => [...prev, { ...el, quantity: 1 }]);
+        }
+      });
     }
   }
+  function handleKeyDown(event, index) {
+    if (list.length !== 0) {
+      if (event.key.match(/\d/)) {
+        multiplyQuantity(event.key, index);
+      } else if (event.key === "backspace") {
+        resetQuantity(index);
+      } else if (event.key === "+") {
+        modifyQuantity(true, index);
+      } else if (event.key === "-" && list[list.length - 1].quantity !== 1) {
+        modifyQuantity(false, index);
+      } else if (event.key === "-" && list[list.length - 1].quantity === 1) {
+        Undo();
+      }
+    } else {
+      console.log("empty");
+    }
+  }
+
   function PopUpHandler(bool) {
     setPopOpen(bool);
     setAddPopUp(bool);
@@ -99,7 +141,7 @@ export default function Sell() {
       return items;
     });
   }
-  console.log(list);
+
   return (
     <Wrapper>
       <Header>
@@ -197,7 +239,13 @@ export default function Sell() {
                     textOverflow: "ellipsis",
                   }}
                 >
-                  {el.quantity}
+                  <Quantity
+                    value={el.quantity}
+                    onChange={() => {}}
+                    onKeyDown={(e) => {
+                      handleKeyDown(e, index);
+                    }}
+                  ></Quantity>
                 </Flex>
               </Item>
             ))}

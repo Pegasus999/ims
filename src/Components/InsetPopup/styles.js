@@ -39,6 +39,12 @@ export const Input = styled.input`
 `;
 export const InputQ = styled(Input)`
   width: 200px;
-
   font-size: 60px;
+`;
+export const Quantity = styled.input`
+  outline: none;
+  text-align: center;
+  font-size: 30px;
+  width: 100%;
+  border: none;
 `;
