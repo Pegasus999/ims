@@ -15,8 +15,9 @@ process.once("loaded", () => {
         id: item[0],
         name: item[1],
         price: item[2],
-        wholesale: item[3],
-        barcode: item[4],
+        availability: item[3] == "true" ? true : false,
+        wholesale: item[4],
+        barcode: item[5],
       };
 
       products.push(object);
@@ -39,7 +40,7 @@ process.once("loaded", () => {
     });
 
     stream.on("end", () => {
-      const string = `\n${id},${product["name"]},${product["price"]},${product["wholesale"]},${product["barcode"]}`;
+      const string = `\n${id},${product["name"]},${product["price"]},${product["availability"]},${product["wholesale"]},${product["barcode"]}`;
       fs.appendFile("./products.csv", string, (error) => {
         if (error) {
           console.error(error);
@@ -61,7 +62,7 @@ process.once("loaded", () => {
         if (regex.test(row)) {
           console.log(row);
           buffer.push(
-            `${item.id},${item.name},${item.price},${item.wholesale},${item.barcode}`
+            `${item.id},${item.name},${item.price},${item.availability},${item.wholesale},${item.barcode}`
           );
         } else buffer.push(row);
       }
@@ -74,7 +75,6 @@ process.once("loaded", () => {
   contextBridge.exposeInMainWorld("Delete", (ids) => {
     const file = fs.createReadStream("./products.csv", { encoding: "utf8" });
     let buffer = [];
-    let regex = new RegExp(`^`);
 
     file.on("data", (chunk) => {
       const rows = chunk.split("\n");

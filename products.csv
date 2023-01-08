@@ -1,6 +1,6 @@
-id,name,price,wholesale,barcode
-1,roz,200,100,895034853229
-3,lobia,40,20,8003510014033
-7,aads,72,52,193795729472
-8,tlitli,80,40,15375747745
-9,khra,62,25,6396196382
+id,name,price,availability,wholesale,barcode
+1,roz,200,true,100,895034853229
+3,lobia,40,true,20,8003510014033
+7,aads,72,true,52,193795729472
+8,tlitli,80,true,40,15375747745
+9,khra,62,true,25,6396196382

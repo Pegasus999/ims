@@ -76,6 +76,7 @@ export const ColumnName = styled.p`
   color: var(--border);
   font-weight: bold;
   cursor: default;
+  user-select: none;
 `;
 
 export const ItemLabel = styled(ColumnName)`
@@ -89,7 +90,7 @@ export const ItemLabel = styled(ColumnName)`
 export const ItemsList = styled.div`
   width: 100%;
   max-height: calc(100vh - 251px);
-  overflow-y: scroll;
+  overflow-y: auto;
 `;
 export const Item = styled.div`
   width: 100%;

@@ -29,7 +29,9 @@ export default function Sell() {
   const [addPopUp, setAddPopUp] = useState(false);
   const [code, setCode] = useState("");
   let componentRef = useRef();
-
+  // YOU HAVE TO ADD THE FUNCTIONALITY WHERE F10 passes the order and add it to the list of items sold today
+  // and u have to make F11 for example passes the order and print the items and add the order to the list of sold items today
+  // ADD THE DATES TO PRODUCTS and MAKE A SECTION WHERE ALMOST EXPIRED ITEMS SHOW
   function SubmitHandler(value, quantity) {
     const object = {
       name: "Manual",
@@ -72,6 +74,9 @@ export default function Sell() {
 
     difference.map((el) => {
       if (el.name !== "Manual") window.SaveData(el);
+    });
+    list.map((item) => {
+      if (!item.availability) window.SaveEdit({ ...item, availability: true });
     });
     setList([]);
   }

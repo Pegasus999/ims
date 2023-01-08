@@ -1,7 +1,6 @@
-import React, { createContext, useState } from "react";
-
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { TbBoxOff, TbBox } from "react-icons/tb";
 import AddProduct from "../AddPopup/AddProduct";
 import EditProduct from "../EditPopup/EditProduct";
 import FilterBar from "./FilterBar";
@@ -16,16 +15,16 @@ import {
   Wrapper,
 } from "./styles";
 
-const products = createContext(window.RequestData());
-
 export default function Inventory() {
   const [selected, setSelected] = useState([]);
   const navigate = useNavigate();
   const [popOpen, setPopOpen] = useState(false);
   const [popeditOpen, setPopEditOpen] = useState(false);
   const [item, setItem] = useState();
-  const products = window.RequestData();
+  const [products, setProducts] = useState(window.RequestData());
   const [productList, setProductList] = useState(products);
+  const original = window.RequestData();
+
   function HandleCheck(e, id) {
     if (e.target.checked) {
       selected ? setSelected((prev) => [...prev, id]) : setSelected(id);
@@ -34,20 +33,40 @@ export default function Inventory() {
       setSelected(newArr);
     }
   }
+
   function AddHandler(bool) {
     setPopOpen(bool);
   }
+
   function EditHandler(el, bool) {
     setItem(el);
 
     setPopEditOpen(bool);
   }
 
+  function availabilityHandler(index) {
+    const arr = [...products];
+    const target = arr.find((obj) => obj.id === index);
+    target.availability = !target.availability;
+    setProducts(arr);
+  }
+  // console.log(products);
+
+  function homeClick() {
+    navigate("/");
+    const difference = products.filter((x) =>
+      original.find((y) => y.id === x.id && y.availability !== x.availability)
+    );
+    for (let i = 0; i < difference.length; i++) {
+      window.SaveEdit(difference[i]);
+    }
+  }
+
   return (
     <div style={{ position: "relative" }}>
       <Wrapper>
         <Header>
-          <Back onClick={() => navigate("/")}>Home</Back>
+          <Back onClick={() => homeClick()}>Home</Back>
           <AddButton onClick={() => AddHandler(true)}>Add Product</AddButton>
         </Header>
         <ProductsContainer>
@@ -64,7 +83,6 @@ export default function Inventory() {
                   onChange={(e) => HandleCheck(e, el.id)}
                 />
                 <div style={{ width: "40px" }}></div>
-
                 <ItemLabel
                   style={{ width: "150px" }}
                   onClick={() => EditHandler(el, true)}
@@ -74,7 +92,20 @@ export default function Inventory() {
                 <ItemLabel onClick={() => EditHandler(el, true)}>
                   {el.price}
                 </ItemLabel>
-
+                <ItemLabel
+                  style={{ minWidth: "60px" }}
+                  onClick={() => {
+                    availabilityHandler(el.id);
+                  }}
+                >
+                  {el.availability ? (
+                    <TbBox
+                      style={{ color: "var(--green)", fontSize: "24px" }}
+                    />
+                  ) : (
+                    <TbBoxOff style={{ color: "red", fontSize: "24px" }} />
+                  )}
+                </ItemLabel>
                 <ItemLabel onClick={() => EditHandler(el, true)}>
                   {el.wholesale}
                 </ItemLabel>

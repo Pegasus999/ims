@@ -78,9 +78,10 @@ export default function FilterBar({ selected, setProductList, products }) {
         </Flex>
       </Flex>
       <Flex jc="flex-start" gap="40px" style={{ padding: "0 20px" }}>
-        <div style={{ width: "93px" }}></div>
+        <div style={{ width: "90px" }}></div>
         <ColumnName style={{ width: "150px" }}>Name</ColumnName>
         <ColumnName>Price</ColumnName>
+        <ColumnName>Availability</ColumnName>
         <ColumnName>Wholesale price</ColumnName>
         <ColumnName>BarCode</ColumnName>
       </Flex>
