@@ -48,3 +48,31 @@ export const Quantity = styled.input`
   width: 100%;
   border: none;
 `;
+
+export const Card = styled.div`
+  width: 100px;
+  height: 80px;
+  border: 1px solid;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+`;
+export const Grid = styled.div`
+  padding-top: 8px;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  grid-template-columns: ${({ columns }) =>
+    parseInt(columns) <= 2 ? `repeat(${columns}, 1fr)` : "repeat(3, 1fr)"};
+  max-height: 640px;
+  margin-top: 2px;
+  gap: 10px;
+`;
+
+export const GridItem = styled.div`
+  grid-row-end: span 1;
+`;

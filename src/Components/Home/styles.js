@@ -7,6 +7,7 @@ export const Wrapper = styled.div`
   justify-content: center;
   align-items: center;
   background-color: var(--background);
+  flex-direction: column;
 `;
 
 export const Container = styled.div`

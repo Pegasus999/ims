@@ -1,15 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ReactToPrint from "react-to-print";
 import useScanDetection from "use-scan-detection";
 import AddToList from "../AddPopup/AddToList";
 import InstertPopup from "../InsetPopup/Insert";
 import { Quantity } from "../InsetPopup/styles";
-
-import { Back, Header } from "../Inventory/styles";
+import { Button as B } from "../Shared/Button";
 import { Flex } from "../Shared/Flex";
 import {
-  Button,
   ButtonsContainer,
   ColumnBar,
   Container,
@@ -28,13 +25,12 @@ export default function Sell() {
   const [popOpen, setPopOpen] = useState(false);
   const [addPopUp, setAddPopUp] = useState(false);
   const [code, setCode] = useState("");
-  let componentRef = useRef();
+
   // YOU HAVE TO ADD THE FUNCTIONALITY WHERE F10 passes the order and add it to the list of items sold today
   // and u have to make F11 for example passes the order and print the items and add the order to the list of sold items today
-  // ADD THE DATES TO PRODUCTS and MAKE A SECTION WHERE ALMOST EXPIRED ITEMS SHOW
-  function SubmitHandler(value, quantity) {
+  function SubmitHandler(name, value, quantity) {
     const object = {
-      name: "Manual",
+      name,
       wholesale: "",
       price: value,
       codebar: "",
@@ -42,14 +38,39 @@ export default function Sell() {
     };
     setList((prev) => [...prev, object]);
   }
+  function AddPreSaved() {
+    setAddPopUp(true);
+    setCode("No BarCode");
+  }
 
   const modifyQuantity = (bool, index) => {
     const newItems = [...list];
     const lastItem = newItems[index];
     if (bool) lastItem.quantity++;
-    else lastItem.quantity--;
+    else {
+      if (lastItem.quantity !== 1) {
+        lastItem.quantity--;
+      } else {
+        newItems.splice(index, 1);
+      }
+    }
+
     setList(newItems);
   };
+
+  const orderPassed = useCallback((event) => {
+    if (event.key === "F10" || event.key === "space") {
+      window.Pass(list);
+    }
+  });
+
+  useEffect(() => {
+    document.addEventListener("keydown", orderPassed, false);
+
+    return () => {
+      document.removeEventListener("keydown", orderPassed, false);
+    };
+  });
 
   const multiplyQuantity = (key, index) => {
     const newItems = [...list];
@@ -72,33 +93,35 @@ export default function Sell() {
       (item1) => !products.some((item2) => item1.name === item2.name)
     );
 
-    difference.map((el) => {
-      if (el.name !== "Manual") window.SaveData(el);
-    });
-    list.map((item) => {
+    for (const el of difference) if (el.name !== "Manual") window.SaveData(el);
+    for (const item of list) {
       if (!item.availability) window.SaveEdit({ ...item, availability: true });
-    });
+    }
+
     setList([]);
   }
 
   function ScanHandler(code) {
     setCode(code);
-
-    if (list.find((item) => item.barcode === code)) {
-      setList((prevList) =>
-        prevList.map((obj) => {
-          if (obj.barcode === code) {
-            return { ...obj, quantity: obj.quantity + 1 };
+    if (products.find((item) => item.barcode === code)) {
+      if (list.find((item) => item.barcode === code)) {
+        setList((prevList) =>
+          prevList.map((obj) => {
+            if (obj.barcode === code) {
+              return { ...obj, quantity: obj.quantity + 1 };
+            }
+            return obj;
+          })
+        );
+      } else {
+        for (const el of products) {
+          if (el.barcode === code) {
+            setList((prev) => [...prev, { ...el, quantity: 1 }]);
           }
-          return obj;
-        })
-      );
-    } else {
-      products.map((el) => {
-        if (el.barcode === code) {
-          setList((prev) => [...prev, { ...el, quantity: 1 }]);
         }
-      });
+      }
+    } else {
+      setAddPopUp(true);
     }
   }
   function handleKeyDown(event, index) {
@@ -109,10 +132,8 @@ export default function Sell() {
         resetQuantity(index);
       } else if (event.key === "+") {
         modifyQuantity(true, index);
-      } else if (event.key === "-" && list[list.length - 1].quantity !== 1) {
+      } else if (event.key === "-") {
         modifyQuantity(false, index);
-      } else if (event.key === "-" && list[list.length - 1].quantity === 1) {
-        Undo();
       }
     } else {
       console.log("empty");
@@ -146,30 +167,49 @@ export default function Sell() {
       return items;
     });
   }
+  function Home() {
+    const difference = list.filter((x) => !products.includes(x));
+    for (const item of difference)
+      if (item.name !== "Manual") window.SaveData(item);
+    navigate("/");
+  }
 
   return (
     <Wrapper>
-      <Header>
-        <Back onClick={() => navigate("/")}>Home</Back>
-      </Header>
+      <Flex jc="space-between" width="100%" style={{ padding: "8px" }}>
+        <B style={{ marginLeft: "20px" }} onClick={() => Home()}>
+          Main Menu
+        </B>
+        <Flex jc="flex-start" ai="flex-end">
+          <B bg="red" hover="red" style={{ marginRight: "20px" }}>
+            End Session
+          </B>
+        </Flex>
+      </Flex>
       <Container>
         <TotalDisplay>{total}</TotalDisplay>
         <ButtonsContainer>
-          <Button color="var(--green)" onClick={() => PopUpHandler(true)}>
+          <B bg="var(--green)" onClick={() => PopUpHandler(true)}>
             INSERT
-          </Button>
-          <ReactToPrint
-            trigger={() => <Button color="var(--blue)">PRINT</Button>}
-            content={() => componentRef}
-          />
-          <Button color="var(--yellow)" onClick={() => Undo()}>
+          </B>
+
+          <B
+            bg="var(--blue)"
+            hover="blue"
+            onClick={() => {
+              document.print();
+            }}
+          >
+            PRINT
+          </B>
+          <B bg="#94aa55" hover="#938F6C" onClick={() => Undo()}>
             UNDO
-          </Button>
-          <Button color="var(--red)" onClick={() => Rest()}>
+          </B>
+          <B bg="var(--red)" hover="red" onClick={() => Rest()}>
             RESET
-          </Button>
+          </B>
         </ButtonsContainer>
-        <ItemsContainer ref={(el) => (componentRef = el)}>
+        <ItemsContainer>
           <ColumnBar>
             <Flex
               jcc="center"
@@ -205,7 +245,7 @@ export default function Sell() {
               Quantity
             </Flex>
           </ColumnBar>
-          <ListContainer>
+          <ListContainer id="ree">
             {list.map((el, index) => (
               <Item key={index}>
                 <Flex
@@ -260,7 +300,14 @@ export default function Sell() {
       {addPopUp && (
         <AddToList open={PopUpHandler} add={AddHandler} barCode={code} />
       )}
-      {popOpen && <InstertPopup open={PopUpHandler} Submit={SubmitHandler} />}
+      {popOpen && (
+        <InstertPopup
+          open={PopUpHandler}
+          Submit={SubmitHandler}
+          items={products}
+          add={AddPreSaved}
+        />
+      )}
     </Wrapper>
   );
 }

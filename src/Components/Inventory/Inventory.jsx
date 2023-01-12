@@ -6,7 +6,6 @@ import EditProduct from "../EditPopup/EditProduct";
 import FilterBar from "./FilterBar";
 import {
   AddButton,
-  Back,
   Header,
   Item,
   ItemLabel,
@@ -14,6 +13,7 @@ import {
   ProductsContainer,
   Wrapper,
 } from "./styles";
+import { Button as B } from "../Shared/Button";
 
 export default function Inventory() {
   const [selected, setSelected] = useState([]);
@@ -66,8 +66,8 @@ export default function Inventory() {
     <div style={{ position: "relative" }}>
       <Wrapper>
         <Header>
-          <Back onClick={() => homeClick()}>Home</Back>
-          <AddButton onClick={() => AddHandler(true)}>Add Product</AddButton>
+          <B onClick={() => homeClick()}>Main Menu</B>
+          <B onClick={() => AddHandler(true)}>Add Product</B>
         </Header>
         <ProductsContainer>
           <FilterBar

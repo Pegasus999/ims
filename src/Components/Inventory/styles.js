@@ -114,7 +114,6 @@ export const AddButton = styled.button`
 
 export const Back = styled.div`
   font-size: 20px;
-
   border-radius: solid 1px var(--border-grey);
   font-weight: bold;
   cursor: pointer;

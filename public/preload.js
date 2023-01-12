@@ -1,12 +1,15 @@
-const { contextBridge } = require("electron");
-
+const { ipcRenderer, contextBridge } = require("electron");
 const fs = require("fs");
 const path = require("path");
 
 process.once("loaded", () => {
+  contextBridge.exposeInMainWorld("api", {
+    send: (channel, data) => ipcRenderer.send(channel, data),
+    recieve: (channel, func) =>
+      ipcRenderer.on(channel, (event, ...args) => func(args)),
+  });
   contextBridge.exposeInMainWorld("RequestData", () => {
     const file = fs.readFileSync("./products.csv", "utf8");
-
     const rows = file.split("\n");
     let products = [];
     rows.map((row) => {
@@ -19,28 +22,22 @@ process.once("loaded", () => {
         wholesale: item[4],
         barcode: item[5],
       };
-
       products.push(object);
     });
     products.splice(0, 1);
-
     return products;
   });
-
   contextBridge.exposeInMainWorld("SaveData", (product) => {
     let id;
-
     const stream = fs.createReadStream("./products.csv", { encoding: "utf8" });
-
     stream.on("data", (chunk) => {
       const rows = chunk.split("\n");
       const lastRow = rows[rows.length - 1].split(",");
       const lastId = parseInt(lastRow[0]) + 1;
       id = lastId;
     });
-
     stream.on("end", () => {
-      const string = `\n${id},${product["name"]},${product["price"]},${product["availability"]},${product["wholesale"]},${product["barcode"]}`;
+      const string = `\n${id},${product["name"]},${product["price"]},true,${product["wholesale"]},${product["barcode"]}`;
       fs.appendFile("./products.csv", string, (error) => {
         if (error) {
           console.error(error);
@@ -50,12 +47,10 @@ process.once("loaded", () => {
       });
     });
   });
-
   contextBridge.exposeInMainWorld("SaveEdit", (item) => {
     const file = fs.createReadStream("./products.csv", { encoding: "utf8" });
     let buffer = [];
     const regex = new RegExp(`^${item.id}`);
-
     file.on("data", (chunk) => {
       const rows = chunk.split("\n");
       for (const row of rows) {
@@ -71,11 +66,9 @@ process.once("loaded", () => {
       fs.writeFileSync("./products.csv", buffer.join("\n"));
     });
   });
-
   contextBridge.exposeInMainWorld("Delete", (ids) => {
     const file = fs.createReadStream("./products.csv", { encoding: "utf8" });
     let buffer = [];
-
     file.on("data", (chunk) => {
       const rows = chunk.split("\n");
       for (const row of rows) {
@@ -90,6 +83,70 @@ process.once("loaded", () => {
     });
     file.on("end", () => {
       fs.writeFileSync("./products.csv", buffer.join("\n"));
+    });
+  });
+  contextBridge.exposeInMainWorld("Pass", (products) => {
+    const file = fs.createReadStream("./session.csv", { encoding: "utf8" });
+    let buffer = [];
+    let found = [];
+    file.on("data", (chunk) => {
+      let rows = chunk.split("\n");
+      for (const product of products) {
+        for (const row of rows) {
+          const id = row.split(",");
+          if (product.id === id[0]) {
+            buffer.push(
+              `${product.id},${product.name},${product.price},${
+                product.quantity + parseFloat(id[3])
+              }`
+            );
+            found.push(product);
+          } else if (!buffer.includes(row)) {
+            buffer.push(row);
+          }
+        }
+      }
+    });
+    file.on("end", () => {
+      fs.writeFileSync("./session.csv", buffer.join("\n"));
+      let difference = products.filter((x) => !found.includes(x));
+      for (const item of difference) {
+        const string = `\n${item.id},${item["name"]},${item["price"]},${item["quantity"]}`;
+        fs.appendFile("./session.csv", string, (error) => {
+          if (error) {
+            console.error(error);
+          } else {
+            console.log("Data written to file successfully");
+          }
+        });
+      }
+    });
+  });
+  contextBridge.exposeInMainWorld("EndSession", () => {
+    const file = fs.readFileSync("./session.csv", "utf8");
+    const rows = file.split("\n");
+    let products = [];
+    rows.map((row) => {
+      let item = row.split(",");
+      let object = {
+        id: item[0],
+        name: item[1],
+        price: item[2],
+        quantity: item[3],
+      };
+      products.push(object);
+    });
+    products.splice(0, 1);
+    return products;
+  });
+  contextBridge.exposeInMainWorld("Printing", (products) => {
+    const data = JSON.parse(products);
+    const keysToKeep = ["name", "quantity", "price"];
+    const arr = products.map((obj) => {
+      const filtered = Object.entries(obj).filter(([key, value]) =>
+        keysToKeep.includes(key)
+      );
+      return filtered.map(([key, value]) => value);
     });
   });
 });

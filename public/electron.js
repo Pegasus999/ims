@@ -1,25 +1,30 @@
-const { Parser } = require("json2csv");
-const csv = require("csvtojson");
-const { app, BrowserWindow, protocol } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  protocol,
+  ipcMain,
+  ipcRenderer,
+} = require("electron");
 const path = require("path");
 const url = require("url");
 const fs = require("fs");
 const { screen } = require("electron");
 
+require("@electron/remote/main").initialize();
 // Create the native browser window.
-
+let window = null;
 function createWindow() {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
-  const mainWindow = new BrowserWindow({
+  window = new BrowserWindow({
     width: width,
     height: height,
     // Set the path of an additional "preload" script that can be used to
     // communicate between node-land and browser-land.
     webPreferences: {
-      contextIsolation: true,
       nodeIntegration: true,
       enableRemoteModule: true,
+
       preload: path.join(__dirname, "preload.js"),
     },
   });
@@ -27,18 +32,12 @@ function createWindow() {
   // In production, set the initial browser path to the local bundle generated
   // by the Create React App build process.
   // In development, set it to localhost to allow live/hot-reloading.
-  const appURL = app.isPackaged
-    ? url.format({
-        pathname: path.join(__dirname, "index.html"),
-        protocol: "file:",
-        slashes: true,
-      })
-    : "http://localhost:3000";
-  mainWindow.loadURL(appURL);
+
+  window.loadURL("http://localhost:3000");
 
   // Automatically open Chrome's DevTools in development mode.
   if (!app.isPackaged) {
-    mainWindow.webContents.openDevTools();
+    window.webContents.openDevTools();
   }
 }
 
@@ -60,8 +59,9 @@ function setupLocalFilesNormalizerProxy() {
 // This method will be called when Electron has finished its initialization and
 // is ready to create the browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
+app.on("ready", () => {
   createWindow();
+
   setupLocalFilesNormalizerProxy();
 
   app.on("activate", function () {

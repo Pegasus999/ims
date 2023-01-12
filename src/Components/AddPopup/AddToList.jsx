@@ -14,14 +14,13 @@ function AddToList({ open, barCode, add }) {
   const [name, setName] = useState("");
   const [wholesale, setWholesale] = useState(0);
   const [price, setPrice] = useState(0);
-  const [focus, setFocus] = useState(false);
-  const [barcode, setBarCode] = useState();
+  const [barcode, setBarCode] = useState(barCode);
   function save() {
     const product = {
       name: name,
       price: price,
       wholesale: wholesale,
-      barcode: barCode,
+      barcode: barcode,
       quantity: 1,
     };
     add(product);
@@ -33,9 +32,7 @@ function AddToList({ open, barCode, add }) {
   });
 
   function ScanHandler(code) {
-    if (focus) {
-      setBarCode(code);
-    }
+    setBarCode(code);
   }
 
   return (
@@ -85,7 +82,9 @@ function AddToList({ open, barCode, add }) {
                   type="number"
                   min="0"
                   value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  onChange={(e) => {
+                    setPrice(e.target.value);
+                  }}
                 ></Input>
               </Flex>
             </Flex>
@@ -97,16 +96,7 @@ function AddToList({ open, barCode, add }) {
               ai="center"
               height="30%"
             >
-              <Label>BarCode</Label>
-              <Input
-                value={barCode}
-                onFocus={() => {
-                  setFocus(true);
-                }}
-                onBlur={() => setFocus(false)}
-                onChange={(e) => setBarCode(e.target.value)}
-                readOnly
-              ></Input>
+              <Label>{barcode}</Label>
             </Flex>
           </Flex>
           <Flex height="10%" width="100%" jc="flex-end" ai="center" gap="10px">
