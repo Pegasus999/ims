@@ -1,16 +1,9 @@
-const {
-  app,
-  BrowserWindow,
-  protocol,
-  ipcMain,
-  ipcRenderer,
-} = require("electron");
+const { app, BrowserWindow, protocol } = require("electron");
 const path = require("path");
 const url = require("url");
 const fs = require("fs");
 const { screen } = require("electron");
 
-require("@electron/remote/main").initialize();
 // Create the native browser window.
 let window = null;
 function createWindow() {

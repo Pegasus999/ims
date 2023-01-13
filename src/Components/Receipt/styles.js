@@ -1,10 +1,9 @@
 import styled from "styled-components";
 
 export const Wrapper = styled.div`
-  width: 260px;
+  width: 400px;
 
   height: fit-content;
-  display: none;
 `;
 export const StoreNameContainer = styled.div`
   width: 100%;
@@ -31,20 +30,26 @@ export const Date = styled.div`
 export const TableContainer = styled.div`
   width: 100%;
   padding: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 export const Table = styled.table`
   text-align: center;
   vertical-align: middle;
+  width: 100%;
+  height: fit-content;
 `;
 
 export const TableHeader = styled.th`
-  text-align: center;
+  text-align: ${({ name }) => (name ? "left" : "center")};
   height: 20px;
   font-weight: bold;
+  width: ${({ name }) => (name ? "50%" : "25%")};
 `;
 
 export const TableCell = styled.td`
-  height: fit-content;
+  text-align: ${({ name }) => (name ? "left" : "center")};
   width: ${({ name }) => (name ? "50%" : "25%")};
 `;

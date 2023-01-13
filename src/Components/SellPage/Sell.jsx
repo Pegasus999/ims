@@ -1,9 +1,13 @@
+import { useRef } from "react";
+import { Component } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ReactToPrint from "react-to-print";
 import useScanDetection from "use-scan-detection";
 import AddToList from "../AddPopup/AddToList";
 import InstertPopup from "../InsetPopup/Insert";
 import { Quantity } from "../InsetPopup/styles";
+import Receipt from "../Receipt/Receipt";
 import { Button as B } from "../Shared/Button";
 import { Flex } from "../Shared/Flex";
 import {
@@ -25,9 +29,16 @@ export default function Sell() {
   const [popOpen, setPopOpen] = useState(false);
   const [addPopUp, setAddPopUp] = useState(false);
   const [code, setCode] = useState("");
-
+  const [printing, setPrinting] = useState(false);
+  let componentRef = useRef(null);
   // YOU HAVE TO ADD THE FUNCTIONALITY WHERE F10 passes the order and add it to the list of items sold today
   // and u have to make F11 for example passes the order and print the items and add the order to the list of sold items today
+  async function handlePrint() {
+    setPrinting(true);
+
+    setTimeout(() => setPrinting(false), 1000);
+  }
+
   function SubmitHandler(name, value, quantity) {
     const object = {
       name,
@@ -192,16 +203,21 @@ export default function Sell() {
           <B bg="var(--green)" onClick={() => PopUpHandler(true)}>
             INSERT
           </B>
+          <ReactToPrint
+            trigger={() => (
+              <B
+                bg="var(--blue)"
+                hover="blue"
+                onClick={() => {
+                  handlePrint();
+                }}
+              >
+                PRINT
+              </B>
+            )}
+            content={() => componentRef}
+          />
 
-          <B
-            bg="var(--blue)"
-            hover="blue"
-            onClick={() => {
-              document.print();
-            }}
-          >
-            PRINT
-          </B>
           <B bg="#94aa55" hover="#938F6C" onClick={() => Undo()}>
             UNDO
           </B>
@@ -300,6 +316,9 @@ export default function Sell() {
       {addPopUp && (
         <AddToList open={PopUpHandler} add={AddHandler} barCode={code} />
       )}
+      {printing ? (
+        <Receipt products={list} ref={(el) => (componentRef = el)} />
+      ) : null}
       {popOpen && (
         <InstertPopup
           open={PopUpHandler}

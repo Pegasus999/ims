@@ -140,7 +140,6 @@ process.once("loaded", () => {
     return products;
   });
   contextBridge.exposeInMainWorld("Printing", (products) => {
-    const data = JSON.parse(products);
     const keysToKeep = ["name", "quantity", "price"];
     const arr = products.map((obj) => {
       const filtered = Object.entries(obj).filter(([key, value]) =>
