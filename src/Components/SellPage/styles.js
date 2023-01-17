@@ -9,6 +9,11 @@ export const Wrapper = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  @media print {
+    &:not(.receipt) {
+      display: none;
+    }
+  }
 `;
 
 export const Container = styled.div`
@@ -75,4 +80,15 @@ export const Item = styled.div`
   border-bottom: 1px solid var(--border);
   width: 100%;
   display: flex;
+`;
+
+export const ReceiptContainer = styled.div`
+  /* Initially hide the receipt component */
+  display: none;
+
+  @media print {
+    &.receipt {
+      display: block;
+    }
+  }
 `;

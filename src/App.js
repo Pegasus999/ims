@@ -1,9 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HomePage from "./Components/Home/HomePage";
 import Inventory from "./Components/Inventory/Inventory";
-import Receipt from "./Components/Receipt/Receipt";
+import { Receipt } from "./Components/Receipt/Receipt";
 import Sell from "./Components/SellPage/Sell";
-
 function App() {
   return (
     <div className="App">

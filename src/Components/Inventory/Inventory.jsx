@@ -5,7 +5,6 @@ import AddProduct from "../AddPopup/AddProduct";
 import EditProduct from "../EditPopup/EditProduct";
 import FilterBar from "./FilterBar";
 import {
-  AddButton,
   Header,
   Item,
   ItemLabel,

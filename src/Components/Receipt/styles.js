@@ -2,7 +2,6 @@ import styled from "styled-components";
 
 export const Wrapper = styled.div`
   width: 400px;
-
   height: fit-content;
 `;
 export const StoreNameContainer = styled.div`

@@ -1,8 +1,9 @@
-const { app, BrowserWindow, protocol } = require("electron");
+const { app, BrowserWindow, protocol, ipcMain } = require("electron");
 const path = require("path");
 const url = require("url");
 const fs = require("fs");
 const { screen } = require("electron");
+const { kMaxLength } = require("buffer");
 
 // Create the native browser window.
 let window = null;

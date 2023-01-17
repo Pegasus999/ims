@@ -1,13 +1,10 @@
-import { useRef } from "react";
-import { Component } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ReactToPrint from "react-to-print";
 import useScanDetection from "use-scan-detection";
 import AddToList from "../AddPopup/AddToList";
 import InstertPopup from "../InsetPopup/Insert";
 import { Quantity } from "../InsetPopup/styles";
-import Receipt from "../Receipt/Receipt";
+import { Receipt } from "../Receipt/Receipt";
 import { Button as B } from "../Shared/Button";
 import { Flex } from "../Shared/Flex";
 import {
@@ -20,6 +17,7 @@ import {
   TotalDisplay,
   Wrapper,
 } from "./styles";
+import ReactDOMServer from "react-dom/server";
 
 export default function Sell() {
   const navigate = useNavigate();
@@ -29,16 +27,18 @@ export default function Sell() {
   const [popOpen, setPopOpen] = useState(false);
   const [addPopUp, setAddPopUp] = useState(false);
   const [code, setCode] = useState("");
-  const [printing, setPrinting] = useState(false);
-  let componentRef = useRef(null);
   // YOU HAVE TO ADD THE FUNCTIONALITY WHERE F10 passes the order and add it to the list of items sold today
   // and u have to make F11 for example passes the order and print the items and add the order to the list of sold items today
-  async function handlePrint() {
-    setPrinting(true);
 
-    setTimeout(() => setPrinting(false), 1000);
+  function handlePrint() {
+    const html = ReactDOMServer.renderToString(<Receipt products={list} />);
+    // Create an HTML document with the component's HTML
+    const printWindow = window.open("", "", "height=400,width=80");
+    printWindow.document.write(html);
+
+    // Print the contents of the new window
+    printWindow.print();
   }
-
   function SubmitHandler(name, value, quantity) {
     const object = {
       name,
@@ -53,7 +53,6 @@ export default function Sell() {
     setAddPopUp(true);
     setCode("No BarCode");
   }
-
   const modifyQuantity = (bool, index) => {
     const newItems = [...list];
     const lastItem = newItems[index];
@@ -73,7 +72,7 @@ export default function Sell() {
     if (event.key === "F10" || event.key === "space") {
       window.Pass(list);
     }
-  });
+  }, []);
 
   useEffect(() => {
     document.addEventListener("keydown", orderPassed, false);
@@ -114,11 +113,11 @@ export default function Sell() {
 
   function ScanHandler(code) {
     setCode(code);
-    if (products.find((item) => item.barcode === code)) {
-      if (list.find((item) => item.barcode === code)) {
+    if (products.find((item) => item.barcode.includes(code))) {
+      if (list.find((item) => item.barcode.includes(code))) {
         setList((prevList) =>
           prevList.map((obj) => {
-            if (obj.barcode === code) {
+            if (obj.barcode.includes(code)) {
               return { ...obj, quantity: obj.quantity + 1 };
             }
             return obj;
@@ -126,7 +125,7 @@ export default function Sell() {
         );
       } else {
         for (const el of products) {
-          if (el.barcode === code) {
+          if (el.barcode.includes(code)) {
             setList((prev) => [...prev, { ...el, quantity: 1 }]);
           }
         }
@@ -179,7 +178,9 @@ export default function Sell() {
     });
   }
   function Home() {
-    const difference = list.filter((x) => !products.includes(x));
+    const difference = list.filter(
+      (x) => !products.find((y) => y.barcode.includes(x.barcode))
+    );
     for (const item of difference)
       if (item.name !== "Manual") window.SaveData(item);
     navigate("/");
@@ -203,21 +204,15 @@ export default function Sell() {
           <B bg="var(--green)" onClick={() => PopUpHandler(true)}>
             INSERT
           </B>
-          <ReactToPrint
-            trigger={() => (
-              <B
-                bg="var(--blue)"
-                hover="blue"
-                onClick={() => {
-                  handlePrint();
-                }}
-              >
-                PRINT
-              </B>
-            )}
-            content={() => componentRef}
-          />
-
+          <B
+            bg="var(--blue)"
+            hover="blue"
+            onClick={() => {
+              handlePrint();
+            }}
+          >
+            PRINT
+          </B>
           <B bg="#94aa55" hover="#938F6C" onClick={() => Undo()}>
             UNDO
           </B>
@@ -316,9 +311,6 @@ export default function Sell() {
       {addPopUp && (
         <AddToList open={PopUpHandler} add={AddHandler} barCode={code} />
       )}
-      {printing ? (
-        <Receipt products={list} ref={(el) => (componentRef = el)} />
-      ) : null}
       {popOpen && (
         <InstertPopup
           open={PopUpHandler}

@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
 import { Flex } from "../Shared/Flex";
 import {
   Date,
@@ -13,15 +12,15 @@ import {
   Wrapper,
 } from "./styles";
 
-export default function Receipt(product) {
-  const { list } = useLocation().state;
+export const Receipt = (props) => {
   const storeName = "StoreName";
   const [total, setTotal] = useState(0);
+  const list = props.products;
 
   useEffect(() => {
     let amount = 0;
     for (let i = 0; i < list.length; i++)
-      amount += list[i].quantity * list[i].price;
+      amount += list[i].quantity * parseInt(list[i].price);
     setTotal(amount);
   });
   return (
@@ -40,15 +39,17 @@ export default function Receipt(product) {
             </tr>
           </thead>
           <tbody>
-            {list.map((el) => {
-              return (
-                <tr key={el.id}>
-                  <TableCell name="true">{el.name}</TableCell>
-                  <TableCell>{el.quantity}</TableCell>
-                  <TableCell>{el.price}</TableCell>
-                </tr>
-              );
-            })}
+            {Array.isArray(list)
+              ? list.map((el) => {
+                  return (
+                    <tr key={el.id}>
+                      <TableCell name="true">{el.name}</TableCell>
+                      <TableCell>{el.quantity}</TableCell>
+                      <TableCell>{el.price}</TableCell>
+                    </tr>
+                  );
+                })
+              : null}
           </tbody>
         </Table>
       </TableContainer>
@@ -63,4 +64,4 @@ export default function Receipt(product) {
       </Flex>
     </Wrapper>
   );
-}
+};

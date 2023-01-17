@@ -16,14 +16,18 @@ export default function FilterBar({ selected, setProductList, products }) {
   const [searchMode, setSearchMode] = useState("text");
   function queryHandler(query) {
     setQuery(query);
-    if (query) {
+    if (query === "") {
+      setProductList(products);
+    } else if (searchMode !== "code") {
       setProductList(
         products.filter((product) =>
           product.name.toLowerCase().includes(query.toLowerCase())
         )
       );
-    } else {
-      setProductList(products);
+    } else if (searchMode === "code") {
+      setProductList(
+        products.filter((product) => product.barcode.includes(query))
+      );
     }
   }
   function iconHandler() {
@@ -33,17 +37,10 @@ export default function FilterBar({ selected, setProductList, products }) {
       setSearchMode("text");
     }
   }
-  function ScanHandler(code) {
-    if (searchMode === "code") {
-      setQuery(code);
-      setProductList(products.filter((product) => product.codebar === code));
-    }
-  }
 
   useScanDetection({
-    onComplete: (code) => ScanHandler(code),
+    onComplete: (code) => queryHandler(code),
   });
-
   return (
     <Filters>
       <Flex style={{ padding: "20px" }} jc="space-between">

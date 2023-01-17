@@ -9,7 +9,7 @@
   "dependencies": {
     "@electron/remote": "^2.0.9",
     "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.4.0",
+    "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^13.5.0",
     "concurrently": "^7.4.0",
     "cross-env": "^7.0.3",
