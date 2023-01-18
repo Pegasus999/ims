@@ -18,7 +18,7 @@ process.once("loaded", () => {
         id: item[0],
         name: item[1],
         price: item[2],
-        availability: item[3] == "true" ? true : false,
+        availability: item[3] === "true" ? true : false,
         wholesale: item[4],
         barcode: item[5],
       };
@@ -90,28 +90,31 @@ process.once("loaded", () => {
     let buffer = [];
     let found = [];
     file.on("data", (chunk) => {
-      let rows = chunk.split("\n");
-      for (const product of products) {
-        for (const row of rows) {
-          const id = row.split(",");
+      const rows = chunk.split("\n");
+      console.log(rows);
+      products.forEach((product) => {
+        rows.forEach((row) => {
+          let id = row.split(",");
           if (product.id === id[0]) {
             buffer.push(
               `${product.id},${product.name},${product.price},${
-                product.quantity + parseFloat(id[3])
+                product.quantity + parseInt(id[3])
               }`
             );
             found.push(product);
-          } else if (!buffer.includes(row)) {
+          } else {
             buffer.push(row);
           }
-        }
-      }
+        });
+      });
     });
     file.on("end", () => {
       fs.writeFileSync("./session.csv", buffer.join("\n"));
+      console.log(found);
       let difference = products.filter((x) => !found.includes(x));
-      for (const item of difference) {
-        const string = `\n${item.id},${item["name"]},${item["price"]},${item["quantity"]}`;
+      console.log(difference);
+      difference.forEach((item) => {
+        const string = `\n${item.id},${item.name},${item.price},${item.quantity}`;
         fs.appendFile("./session.csv", string, (error) => {
           if (error) {
             console.error(error);
@@ -119,7 +122,7 @@ process.once("loaded", () => {
             console.log("Data written to file successfully");
           }
         });
-      }
+      });
     });
   });
   contextBridge.exposeInMainWorld("EndSession", () => {
@@ -131,21 +134,12 @@ process.once("loaded", () => {
       let object = {
         id: item[0],
         name: item[1],
-        price: item[2],
-        quantity: item[3],
+        price: parseInt(item[2]),
+        quantity: parseInt(item[3]),
       };
       products.push(object);
     });
     products.splice(0, 1);
     return products;
-  });
-  contextBridge.exposeInMainWorld("Printing", (products) => {
-    const keysToKeep = ["name", "quantity", "price"];
-    const arr = products.map((obj) => {
-      const filtered = Object.entries(obj).filter(([key, value]) =>
-        keysToKeep.includes(key)
-      );
-      return filtered.map(([key, value]) => value);
-    });
   });
 });

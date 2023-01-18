@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ServerStyleSheet } from "styled-components";
 import useScanDetection from "use-scan-detection";
 import AddToList from "../AddPopup/AddToList";
+import EndSession from "../End/End";
 import InstertPopup from "../InsetPopup/Insert";
 import { Quantity } from "../InsetPopup/styles";
-import { Receipt } from "../Receipt/Receipt";
 import { Button as B } from "../Shared/Button";
 import { Flex } from "../Shared/Flex";
 import {
@@ -27,17 +28,27 @@ export default function Sell() {
   const [popOpen, setPopOpen] = useState(false);
   const [addPopUp, setAddPopUp] = useState(false);
   const [code, setCode] = useState("");
-  // YOU HAVE TO ADD THE FUNCTIONALITY WHERE F10 passes the order and add it to the list of items sold today
-  // and u have to make F11 for example passes the order and print the items and add the order to the list of sold items today
 
-  function handlePrint() {
-    const html = ReactDOMServer.renderToString(<Receipt products={list} />);
-    // Create an HTML document with the component's HTML
-    const printWindow = window.open("", "", "height=400,width=80");
-    printWindow.document.write(html);
+  function HaClick() {
+    const newWindow = window.open("", "", "height=400,width=800");
 
-    // Print the contents of the new window
-    printWindow.print();
+    const sheet = new ServerStyleSheet();
+    const html = ReactDOMServer.renderToString(
+      sheet.collectStyles(<EndSession />)
+    );
+    const css = sheet.getStyleTags();
+    newWindow.document.write(`<html>
+    <head>
+    <style>
+    ${css}
+    </style>
+    </head>
+    <body>
+    ${html}
+    </body>
+    </html>`);
+
+    sheet.seal();
   }
   function SubmitHandler(name, value, quantity) {
     const object = {
@@ -201,17 +212,8 @@ export default function Sell() {
       <Container>
         <TotalDisplay>{total}</TotalDisplay>
         <ButtonsContainer>
-          <B bg="var(--green)" onClick={() => PopUpHandler(true)}>
+          <B bg="var(--blue)" onClick={() => PopUpHandler(true)}>
             INSERT
-          </B>
-          <B
-            bg="var(--blue)"
-            hover="blue"
-            onClick={() => {
-              handlePrint();
-            }}
-          >
-            PRINT
           </B>
           <B bg="#94aa55" hover="#938F6C" onClick={() => Undo()}>
             UNDO
@@ -311,6 +313,13 @@ export default function Sell() {
       {addPopUp && (
         <AddToList open={PopUpHandler} add={AddHandler} barCode={code} />
       )}
+      <B
+        onClick={() => {
+          HaClick();
+        }}
+      >
+        HA
+      </B>
       {popOpen && (
         <InstertPopup
           open={PopUpHandler}

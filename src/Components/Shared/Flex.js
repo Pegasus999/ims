@@ -9,4 +9,6 @@ export const Flex = styled.div`
   width: ${({ width }) => width};
   height: ${({ height }) => height};
   gap: ${({ gap }) => gap};
+  background-color: ${({ bg }) => bg};
+  flex: ${({ flex }) => flex};
 `;
