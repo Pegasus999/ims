@@ -11,9 +11,15 @@ import { MdSearch } from "react-icons/md";
 import { RiCloseCircleFill, RiBarcodeBoxLine } from "react-icons/ri";
 import useScanDetection from "use-scan-detection";
 
-export default function FilterBar({ selected, setProductList, products }) {
+export default function FilterBar({
+  selected,
+  setProductList,
+  products,
+  list,
+}) {
   const [query, setQuery] = useState("");
   const [searchMode, setSearchMode] = useState("text");
+
   function queryHandler(query) {
     setQuery(query);
     if (query === "") {
@@ -36,6 +42,12 @@ export default function FilterBar({ selected, setProductList, products }) {
     } else {
       setSearchMode("text");
     }
+  }
+
+  function availabilityHandler() {
+    if (list.length === products.length)
+      setProductList(products.filter((el) => el.availability === false));
+    else setProductList(products);
   }
 
   useScanDetection({
@@ -78,7 +90,14 @@ export default function FilterBar({ selected, setProductList, products }) {
         <div style={{ width: "90px" }}></div>
         <ColumnName style={{ width: "150px" }}>Name</ColumnName>
         <ColumnName>Price</ColumnName>
-        <ColumnName>Availability</ColumnName>
+        <ColumnName
+          cursor="true"
+          onClick={() => {
+            availabilityHandler();
+          }}
+        >
+          Availability
+        </ColumnName>
         <ColumnName>Wholesale price</ColumnName>
         <ColumnName>BarCode</ColumnName>
       </Flex>

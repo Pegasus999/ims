@@ -72,6 +72,7 @@ export default function Inventory() {
           <FilterBar
             selected={selected}
             products={products}
+            list={productList}
             setProductList={setProductList}
           />
           <ItemsList>

@@ -75,7 +75,7 @@ export const ColumnName = styled.p`
   font-size: 14px;
   color: var(--border);
   font-weight: bold;
-  cursor: default;
+  cursor: ${({ cursor }) => (cursor ? "pointer" : "default")};
   user-select: none;
 `;
 

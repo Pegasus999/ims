@@ -1,9 +1,8 @@
 id,name,price,availability,wholesale,barcode
 1,roz,200,true,100,895034853229
-3,lobia,40,true,20,8003510014033
+3,lobia,40,false,20,8003510014033
 7,aads,72,true,52,193795729472
 8,tlitli,80,true,40,15375747745
 9,khra,62,true,25,6396196382
 10,meow,52,true,42,1639629572
-11,sabon,6,true,4,No BarCode
-12,gillet,5,true,1,No BarCode
+11,sabon,6,true,4,No BarCode

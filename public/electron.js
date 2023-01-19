@@ -4,7 +4,6 @@ const url = require("url");
 const fs = require("fs");
 const { screen } = require("electron");
 const { kMaxLength } = require("buffer");
-
 // Create the native browser window.
 let window = null;
 function createWindow() {
@@ -89,6 +88,19 @@ app.on("web-contents-created", (event, contents) => {
     }
   });
 });
+ipcMain.on("end-session", (event, args) => {
+  const newWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      nodeIntegration: true,
+      enableRemoteModule: true,
+      preload: path.join(__dirname, "smallload.js"),
+    },
+  });
+  newWindow.loadURL(`http://localhost:3000/end`);
 
+  newWindow.show();
+});
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.

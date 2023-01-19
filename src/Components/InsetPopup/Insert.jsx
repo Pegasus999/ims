@@ -15,7 +15,7 @@ import { Button } from "../Shared/Button";
 export default function InstertPopup({ open, Submit, items, add }) {
   const [value, setValue] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const arr = items.filter((x) => x.barcode === "No BarCode");
+  const arr = items.filter((x) => x.barcode.includes("No BarCode"));
   function Save() {
     if (value !== 0) Submit("Manual", value, quantity);
     open(false);
@@ -90,7 +90,12 @@ export default function InstertPopup({ open, Submit, items, add }) {
         </Flex>
         <Flex height="20%" width="100%">
           <Flex jc="center" ai="center" height="100%" width="50%">
-            <Button bg="var(--red)" w="200px" onClick={() => open(false)}>
+            <Button
+              bg="var(--red)"
+              hover="red"
+              w="200px"
+              onClick={() => open(false)}
+            >
               Cancel
             </Button>
           </Flex>

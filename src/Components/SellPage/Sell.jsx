@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ServerStyleSheet } from "styled-components";
 import useScanDetection from "use-scan-detection";
 import AddToList from "../AddPopup/AddToList";
-import EndSession from "../End/End";
 import InstertPopup from "../InsetPopup/Insert";
 import { Quantity } from "../InsetPopup/styles";
 import { Button as B } from "../Shared/Button";
@@ -18,7 +16,6 @@ import {
   TotalDisplay,
   Wrapper,
 } from "./styles";
-import ReactDOMServer from "react-dom/server";
 
 export default function Sell() {
   const navigate = useNavigate();
@@ -26,30 +23,13 @@ export default function Sell() {
   const products = window.RequestData();
   const [total, setTotal] = useState(0);
   const [popOpen, setPopOpen] = useState(false);
-  const [addPopUp, setAddPopUp] = useState(false);
+  const [addPopUp, setAddPopUp] = useState({ bool: false, pre: false });
   const [code, setCode] = useState("");
 
-  function HaClick() {
-    const newWindow = window.open("", "", "height=400,width=800");
-
-    const sheet = new ServerStyleSheet();
-    const html = ReactDOMServer.renderToString(
-      sheet.collectStyles(<EndSession />)
-    );
-    const css = sheet.getStyleTags();
-    newWindow.document.write(`<html>
-    <head>
-    <style>
-    ${css}
-    </style>
-    </head>
-    <body>
-    ${html}
-    </body>
-    </html>`);
-
-    sheet.seal();
+  function EndSessionHandler() {
+    window.api.send("end-session");
   }
+
   function SubmitHandler(name, value, quantity) {
     const object = {
       name,
@@ -60,10 +40,11 @@ export default function Sell() {
     };
     setList((prev) => [...prev, object]);
   }
+
   function AddPreSaved() {
-    setAddPopUp(true);
-    setCode("No BarCode");
+    setAddPopUp({ bool: true, pre: true });
   }
+
   const modifyQuantity = (bool, index) => {
     const newItems = [...list];
     const lastItem = newItems[index];
@@ -82,6 +63,10 @@ export default function Sell() {
   const orderPassed = useCallback((event) => {
     if (event.key === "F10" || event.key === "space") {
       window.Pass(list);
+    } else if (event.key === "Backspace") {
+      Undo();
+    } else if (event.key === "Esc") {
+      Rest();
     }
   }, []);
 
@@ -142,7 +127,7 @@ export default function Sell() {
         }
       }
     } else {
-      setAddPopUp(true);
+      setAddPopUp({ bool: true, pre: false });
     }
   }
   function handleKeyDown(event, index) {
@@ -163,7 +148,7 @@ export default function Sell() {
 
   function PopUpHandler(bool) {
     setPopOpen(bool);
-    setAddPopUp(bool);
+    setAddPopUp({ bool: bool, pre: false });
   }
 
   useEffect(() => {
@@ -178,7 +163,7 @@ export default function Sell() {
   });
 
   function AddHandler(object) {
-    setList((prev) => [...prev, object]);
+    setList((prev) => [...prev, { ...object }]);
   }
 
   function Undo() {
@@ -189,9 +174,7 @@ export default function Sell() {
     });
   }
   function Home() {
-    const difference = list.filter(
-      (x) => !products.find((y) => y.barcode.includes(x.barcode))
-    );
+    const difference = list.filter((x) => !products.includes(x));
     for (const item of difference)
       if (item.name !== "Manual") window.SaveData(item);
     navigate("/");
@@ -204,7 +187,14 @@ export default function Sell() {
           Main Menu
         </B>
         <Flex jc="flex-start" ai="flex-end">
-          <B bg="red" hover="red" style={{ marginRight: "20px" }}>
+          <B
+            bg="red"
+            hover="red"
+            style={{ marginRight: "20px" }}
+            onClick={() => {
+              EndSessionHandler();
+            }}
+          >
             End Session
           </B>
         </Flex>
@@ -212,7 +202,7 @@ export default function Sell() {
       <Container>
         <TotalDisplay>{total}</TotalDisplay>
         <ButtonsContainer>
-          <B bg="var(--blue)" onClick={() => PopUpHandler(true)}>
+          <B bg="var(--blue)" hover="blue" onClick={() => setPopOpen(true)}>
             INSERT
           </B>
           <B bg="#94aa55" hover="#938F6C" onClick={() => Undo()}>
@@ -310,16 +300,13 @@ export default function Sell() {
           </ListContainer>
         </ItemsContainer>
       </Container>
-      {addPopUp && (
-        <AddToList open={PopUpHandler} add={AddHandler} barCode={code} />
+      {addPopUp.bool && (
+        <AddToList
+          open={PopUpHandler}
+          add={AddHandler}
+          barCode={addPopUp.pre ? "No BarCode" : code}
+        />
       )}
-      <B
-        onClick={() => {
-          HaClick();
-        }}
-      >
-        HA
-      </B>
       {popOpen && (
         <InstertPopup
           open={PopUpHandler}
