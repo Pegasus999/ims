@@ -34,6 +34,7 @@ function AddProduct({ open }) {
       wholesale: wholesale,
       barcode: barCode,
     };
+    open(false);
     window.SaveData(product);
   }
   return (

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import EndSession from "./Components/End/End";
 import HomePage from "./Components/Home/HomePage";
 import Inventory from "./Components/Inventory/Inventory";

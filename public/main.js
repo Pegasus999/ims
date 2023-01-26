@@ -4,6 +4,7 @@ const url = require("url");
 const fs = require("fs");
 const { screen } = require("electron");
 const { kMaxLength } = require("buffer");
+const isDev = require("electron-is-dev");
 // Create the native browser window.
 let window = null;
 function createWindow() {
@@ -26,7 +27,11 @@ function createWindow() {
   // by the Create React App build process.
   // In development, set it to localhost to allow live/hot-reloading.
 
-  window.loadURL("http://localhost:3000");
+  window.loadURL(
+    isDev
+      ? "http://localhost:3000"
+      : `file://${path.join(__dirname, "../build/index.html")}`
+  );
 
   // Automatically open Chrome's DevTools in development mode.
   if (!app.isPackaged) {
@@ -98,7 +103,11 @@ ipcMain.on("end-session", (event, args) => {
       preload: path.join(__dirname, "smallload.js"),
     },
   });
-  newWindow.loadURL(`http://localhost:3000/end`);
+  newWindow.loadURL(
+    isDev
+      ? "http://localhost:3000/#/end"
+      : `file://${path.join(__dirname, "../build/index.html#/end")}`
+  );
 
   newWindow.show();
 });

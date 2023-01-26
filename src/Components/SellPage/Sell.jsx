@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useScanDetection from "use-scan-detection";
 import AddToList from "../AddPopup/AddToList";
@@ -30,14 +30,7 @@ export default function Sell() {
     window.api.send("end-session");
   }
 
-  function SubmitHandler(name, value, quantity) {
-    const object = {
-      name,
-      wholesale: "",
-      price: value,
-      codebar: "",
-      quantity,
-    };
+  function SubmitHandler(object) {
     setList((prev) => [...prev, object]);
   }
 
@@ -59,24 +52,9 @@ export default function Sell() {
 
     setList(newItems);
   };
-
-  const orderPassed = useCallback((event) => {
-    if (event.key === "F10" || event.key === "space") {
-      window.Pass(list);
-    } else if (event.key === "Backspace") {
-      Undo();
-    } else if (event.key === "Esc") {
-      Rest();
-    }
-  }, []);
-
-  useEffect(() => {
-    document.addEventListener("keydown", orderPassed, false);
-
-    return () => {
-      document.removeEventListener("keydown", orderPassed, false);
-    };
-  });
+  function orderPassed(currentList) {
+    window.Pass(currentList);
+  }
 
   const multiplyQuantity = (key, index) => {
     const newItems = [...list];
@@ -204,6 +182,9 @@ export default function Sell() {
         <ButtonsContainer>
           <B bg="var(--blue)" hover="blue" onClick={() => setPopOpen(true)}>
             INSERT
+          </B>
+          <B bg="var(--green)" hover="green" onClick={() => orderPassed(list)}>
+            Pass
           </B>
           <B bg="#94aa55" hover="#938F6C" onClick={() => Undo()}>
             UNDO

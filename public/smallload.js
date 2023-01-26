@@ -4,7 +4,10 @@ const path = require("path");
 
 process.once("loaded", () => {
   contextBridge.exposeInMainWorld("EndSession", () => {
-    const file = fs.readFileSync("./session.csv", "utf8");
+    const file = fs.readFileSync(
+      path.join(__dirname, "/data/session.csv"),
+      "utf8"
+    );
     const rows = file.split("\n");
     let products = [];
     rows.map((row) => {
@@ -23,6 +26,6 @@ process.once("loaded", () => {
 
   contextBridge.exposeInMainWorld("Done", () => {
     const string = "id,name,price,quantity";
-    fs.writeFileSync("./session.csv", string);
+    fs.writeFileSync(path.join(__dirname, "/data/session.csv"), string);
   });
 });

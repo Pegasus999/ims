@@ -22,7 +22,7 @@ export default function InstertPopup({ open, Submit, items, add }) {
   }
 
   function preSaved(obj) {
-    Submit(obj.name, obj.price, 1);
+    Submit({ ...obj, quantity: 1 });
     open(false);
   }
 
