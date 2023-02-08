@@ -17,12 +17,15 @@ export default function EditProduct({ open, item }) {
   const [price, setPrice] = useState(item.price);
   let product;
   useScanDetection({
-    onComplete: setBarCode,
+    onComplete: (code) => setBarCode(code),
+    stopPropagation: true,
+    minLength: 4,
   });
   function Edit() {
     product = { id: item.id, name, price, wholesale, barcode: barCode };
-    console.log(product);
     window.SaveEdit(product);
+
+    open(product, false);
   }
   return (
     <>

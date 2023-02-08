@@ -50,9 +50,17 @@ export default function FilterBar({
     else setProductList(products);
   }
 
+  function deleteHandler() {
+    window.Delete(selected);
+    setProductList(products.filter((x) => !selected.includes(x.id)));
+  }
+
   useScanDetection({
     onComplete: (code) => queryHandler(code),
+    stopPropagation: true,
+    minLength: 4,
   });
+
   return (
     <Filters>
       <Flex style={{ padding: "20px" }} jc="space-between">
@@ -80,7 +88,7 @@ export default function FilterBar({
         <Flex>
           <DeleteButton
             disabled={selected.length === 0 ? true : false}
-            onClick={() => window.Delete(selected)}
+            onClick={() => deleteHandler()}
           >
             DELETE
           </DeleteButton>

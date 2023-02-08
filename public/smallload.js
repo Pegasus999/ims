@@ -1,11 +1,35 @@
-const { contextBridge } = require("electron");
+const { ipcRenderer, contextBridge } = require("electron");
 const fs = require("fs");
 const path = require("path");
 
 process.once("loaded", () => {
+  let dataPath;
+  ipcRenderer.send("get-app-data-path");
+
+  ipcRenderer.on("app-data-path-received", (event, appDataPath) => {
+    const dataFolder = path.join(appDataPath, "data");
+    const productsFile = path.join(dataFolder, "products.csv");
+    const sessionFile = path.join(dataFolder, "session.csv");
+
+    if (!fs.existsSync(dataFolder)) {
+      fs.mkdirSync(dataFolder, { recursive: true });
+    }
+
+    if (!fs.existsSync(productsFile)) {
+      fs.writeFileSync(
+        productsFile,
+        "id,name,price,availability,wholesale,barcode"
+      );
+    }
+
+    if (!fs.existsSync(sessionFile)) {
+      fs.writeFileSync(sessionFile, "id,name,price,quantity");
+    }
+    dataPath = appDataPath;
+  });
   contextBridge.exposeInMainWorld("EndSession", () => {
     const file = fs.readFileSync(
-      path.join(__dirname, "/data/session.csv"),
+      path.join(dataPath, "/data/session.csv"),
       "utf8"
     );
     const rows = file.split("\n");
@@ -26,6 +50,6 @@ process.once("loaded", () => {
 
   contextBridge.exposeInMainWorld("Done", () => {
     const string = "id,name,price,quantity";
-    fs.writeFileSync(path.join(__dirname, "/data/session.csv"), string);
+    fs.writeFileSync(path.join(dataPath, "/data/session.csv"), string);
   });
 });

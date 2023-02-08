@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useScanDetection from "use-scan-detection";
 import AddToList from "../AddPopup/AddToList";
@@ -25,7 +25,6 @@ export default function Sell() {
   const [popOpen, setPopOpen] = useState(false);
   const [addPopUp, setAddPopUp] = useState({ bool: false, pre: false });
   const [code, setCode] = useState("");
-
   function EndSessionHandler() {
     window.api.send("end-session");
   }
@@ -54,6 +53,7 @@ export default function Sell() {
   };
   function orderPassed(currentList) {
     window.Pass(currentList);
+    Rest();
   }
 
   const multiplyQuantity = (key, index) => {
@@ -86,8 +86,9 @@ export default function Sell() {
   }
 
   function ScanHandler(code) {
+    const items = window.RequestData();
     setCode(code);
-    if (products.find((item) => item.barcode.includes(code))) {
+    if (items.find((item) => item.barcode.includes(code))) {
       if (list.find((item) => item.barcode.includes(code))) {
         setList((prevList) =>
           prevList.map((obj) => {
@@ -98,7 +99,7 @@ export default function Sell() {
           })
         );
       } else {
-        for (const el of products) {
+        for (const el of items) {
           if (el.barcode.includes(code)) {
             setList((prev) => [...prev, { ...el, quantity: 1 }]);
           }
@@ -138,6 +139,8 @@ export default function Sell() {
 
   useScanDetection({
     onComplete: (code) => ScanHandler(code),
+    stopPropagation: true,
+    minLength: 4,
   });
 
   function AddHandler(object) {
@@ -151,10 +154,15 @@ export default function Sell() {
       return items;
     });
   }
+
+  function difference() {
+    const difference = list.filter((x) => !products.find((y) => x.id === y.id));
+    return difference;
+  }
+
   function Home() {
-    const difference = list.filter((x) => !products.includes(x));
-    for (const item of difference)
-      if (item.name !== "Manual") window.SaveData(item);
+    const arr = difference();
+    for (const item of arr) if (item.name !== "Manual") window.SaveData(item);
     navigate("/");
   }
 

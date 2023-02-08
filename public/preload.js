@@ -1,16 +1,40 @@
-const { ipcRenderer, contextBridge } = require("electron");
+const { ipcRenderer, contextBridge, app } = require("electron");
 const fs = require("fs");
 const path = require("path");
-
+var dataPath;
 process.once("loaded", () => {
   contextBridge.exposeInMainWorld("api", {
     send: (channel, data) => ipcRenderer.send(channel, data),
     recieve: (channel, func) =>
       ipcRenderer.on(channel, (event, ...args) => func(args)),
   });
+
+  ipcRenderer.send("get-app-data-path");
+
+  ipcRenderer.on("app-data-path-received", (event, appDataPath) => {
+    const dataFolder = path.join(appDataPath, "data");
+    const productsFile = path.join(dataFolder, "products.csv");
+    const sessionFile = path.join(dataFolder, "session.csv");
+
+    if (!fs.existsSync(dataFolder)) {
+      fs.mkdirSync(dataFolder, { recursive: true });
+    }
+
+    if (!fs.existsSync(productsFile)) {
+      fs.writeFileSync(
+        productsFile,
+        "id,name,price,availability,wholesale,barcode"
+      );
+    }
+
+    if (!fs.existsSync(sessionFile)) {
+      fs.writeFileSync(sessionFile, "id,name,price,quantity");
+    }
+    dataPath = appDataPath;
+  });
   contextBridge.exposeInMainWorld("RequestData", () => {
     const file = fs.readFileSync(
-      path.join(__dirname, "/data/products.csv"),
+      path.join(dataPath, "/data/products.csv"),
       "utf8"
     );
     const rows = file.split("\n");
@@ -30,10 +54,11 @@ process.once("loaded", () => {
     products.splice(0, 1);
     return products;
   });
+
   contextBridge.exposeInMainWorld("SaveData", (product) => {
     let id;
     const stream = fs.createReadStream(
-      path.join(__dirname, "/data/products.csv"),
+      path.join(dataPath, "/data/products.csv"),
       { encoding: "utf8" }
     );
     stream.on("data", (chunk) => {
@@ -46,7 +71,7 @@ process.once("loaded", () => {
       console.log(id);
       const string = `\n${id},${product["name"]},${product["price"]},true,${product["wholesale"]},${product["barcode"]}`;
       fs.appendFile(
-        path.join(__dirname, "/data/products.csv"),
+        path.join(dataPath, "/data/products.csv"),
         string,
         (error) => {
           if (error) {
@@ -58,9 +83,10 @@ process.once("loaded", () => {
       );
     });
   });
+
   contextBridge.exposeInMainWorld("SaveEdit", (item) => {
     const file = fs.createReadStream(
-      path.join(__dirname, "/data/products.csv"),
+      path.join(dataPath, "/data/products.csv"),
       { encoding: "utf8" }
     );
     let buffer = [];
@@ -69,7 +95,6 @@ process.once("loaded", () => {
       const rows = chunk.split("\n");
       for (const row of rows) {
         if (regex.test(row)) {
-          console.log(row);
           buffer.push(
             `${item.id},${item.name},${item.price},${item.availability},${item.wholesale},${item.barcode}`
           );
@@ -78,14 +103,15 @@ process.once("loaded", () => {
     });
     file.on("end", () => {
       fs.writeFileSync(
-        path.join(__dirname, "/data/products.csv"),
+        path.join(dataPath, "/data/products.csv"),
         buffer.join("\n")
       );
     });
   });
+
   contextBridge.exposeInMainWorld("Delete", (ids) => {
     const file = fs.createReadStream(
-      path.join(__dirname, "/data/products.csv"),
+      path.join(dataPath, "/data/products.csv"),
       { encoding: "utf8" }
     );
     let buffer = [];
@@ -103,15 +129,15 @@ process.once("loaded", () => {
     });
     file.on("end", () => {
       fs.writeFileSync(
-        path.join(__dirname, "/data/products.csv"),
+        path.join(dataPath, "/data/products.csv"),
         buffer.join("\n")
       );
     });
   });
+
   contextBridge.exposeInMainWorld("Pass", (products) => {
-    console.log("ree");
     const file = fs.readFileSync(
-      path.join(__dirname, "/data/session.csv"),
+      path.join(dataPath, "/data/session.csv"),
       "utf8"
     );
     let buffer = [];
@@ -119,6 +145,14 @@ process.once("loaded", () => {
     const rows = file.split("\n");
     rows.forEach((element) => {
       const row = element.split(",");
+      if (row[0] === "undefined") {
+        const newItem = products.find(
+          (x) => x.name === row[1] && x.price === row[2]
+        );
+        if (newItem) {
+          row[0] = newItem.id;
+        }
+      }
       const item = products.find((x) => x.id === row[0]);
       if (item) {
         buffer.push(
@@ -136,6 +170,6 @@ process.once("loaded", () => {
       );
     });
     const finalString = buffer.join("\n");
-    fs.writeFileSync(path.join(__dirname, "/data/session.csv"), finalString);
+    fs.writeFileSync(path.join(dataPath, "/data/session.csv"), finalString);
   });
 });

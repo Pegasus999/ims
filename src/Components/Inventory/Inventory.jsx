@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { TbBoxOff, TbBox } from "react-icons/tb";
 import AddProduct from "../AddPopup/AddProduct";
@@ -22,7 +22,13 @@ export default function Inventory() {
   const [item, setItem] = useState();
   const [products, setProducts] = useState(window.RequestData());
   const [productList, setProductList] = useState(products);
-  const original = window.RequestData();
+
+  useEffect(() => {
+    setTimeout(() => {
+      setProducts(window.RequestData());
+      setProductList(window.RequestData);
+    }, 600);
+  }, [popOpen, popeditOpen]);
 
   function HandleCheck(e, id) {
     if (e.target.checked) {
@@ -45,20 +51,24 @@ export default function Inventory() {
 
   function availabilityHandler(index) {
     const arr = [...products];
-    const target = arr.find((obj) => obj.id === index);
+    const targetIndex = arr.findIndex((obj) => obj.id === index);
+    const target = { ...arr[targetIndex] };
     target.availability = !target.availability;
-    setProducts(arr);
+    arr[targetIndex] = target;
+    setProductList(arr);
   }
-  // console.log(products);
+  console.log(products);
 
   function homeClick() {
-    navigate("/");
-    const difference = products.filter((x) =>
-      original.find((y) => y.id === x.id && y.availability !== x.availability)
-    );
+    const difference = productList.filter((obj1) => {
+      const match = products.find((obj2) => obj1.id === obj2.id);
+      return match && obj1.availability !== match.availability;
+    });
+
     for (let i = 0; i < difference.length; i++) {
       window.SaveEdit(difference[i]);
     }
+    navigate("/");
   }
 
   return (

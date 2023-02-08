@@ -29,6 +29,8 @@ function AddToList({ open, barCode, add }) {
 
   useScanDetection({
     onComplete: (code) => ScanHandler(code),
+    stopPropagation: true,
+    minLength: 10,
   });
 
   function ScanHandler(code) {

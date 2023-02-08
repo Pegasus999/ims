@@ -3,7 +3,6 @@ const path = require("path");
 const url = require("url");
 const fs = require("fs");
 const { screen } = require("electron");
-const { kMaxLength } = require("buffer");
 const isDev = require("electron-is-dev");
 // Create the native browser window.
 let window = null;
@@ -18,7 +17,6 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
-
       preload: path.join(__dirname, "preload.js"),
     },
   });
@@ -99,17 +97,21 @@ ipcMain.on("end-session", (event, args) => {
     height: 600,
     webPreferences: {
       nodeIntegration: true,
-      enableRemoteModule: true,
+
       preload: path.join(__dirname, "smallload.js"),
     },
   });
   newWindow.loadURL(
     isDev
       ? "http://localhost:3000/#/end"
-      : `file://${path.join(__dirname, "../build/index.html#/end")}`
+      : `file://${path.join(__dirname, "../build/index.html")}#/end`
   );
 
   newWindow.show();
+});
+ipcMain.on("get-app-data-path", (event) => {
+  const appDataPath = app.getPath("appData");
+  event.sender.send("app-data-path-received", appDataPath);
 });
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.

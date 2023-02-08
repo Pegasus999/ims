@@ -9,8 +9,10 @@ import {
   Wrapper,
 } from "./styles";
 import useScanDetection from "use-scan-detection";
+import { useNavigate } from "react-router-dom";
 
 function AddProduct({ open }) {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [wholesale, setWholesale] = useState(0);
   const [price, setPrice] = useState(0);
@@ -19,6 +21,8 @@ function AddProduct({ open }) {
 
   useScanDetection({
     onComplete: (code) => ScanHandler(code),
+    stopPropagation: true,
+    minLength: 4,
   });
 
   function ScanHandler(code) {
@@ -34,8 +38,9 @@ function AddProduct({ open }) {
       wholesale: wholesale,
       barcode: barCode,
     };
-    open(false);
     window.SaveData(product);
+
+    open(false);
   }
   return (
     <>
